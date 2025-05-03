@@ -3,7 +3,7 @@
 //! Responsibilities:
 //! - Build and analyze the copurchase graph
 //! - Compute degree distributions
-//! - Perform linear regression on copurchase counts
+//! - Perform linear regression
 
 use petgraph::prelude::Graph;
 use petgraph::Undirected;
@@ -30,7 +30,7 @@ pub fn build_graph(items: &[crate::data_processing::Item]) -> Graph<String, (), 
     g
 }
 
-/// Returns a map of degree -> count of nodes with that degree
+/// Degree -> count of nodes with that degree
 pub fn degree_distribution(graph: &Graph<String, (), Undirected>) -> HashMap<usize, usize> {
     let mut dist = HashMap::new();
     for n in graph.node_indices() {
@@ -55,6 +55,19 @@ pub fn linear_regression(x: &[f64], y: &[f64]) -> (f64, f64) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data_processing::Item;
+
+    #[test]
+    fn test_degree_distribution() {
+        let items = vec![
+            Item { asin: "A".into(), title: "".into(), group: "Book".into(), similar: vec!["B".into()], book_count: 0, dvd_count: 0, rating: 0.0 },
+            Item { asin: "B".into(), title: "".into(), group: "DVD".into(),  similar: vec!["A".into()], book_count: 0, dvd_count: 0, rating: 0.0 },
+        ];
+        let g = build_graph(&items);
+        let dist = degree_distribution(&g);
+        assert_eq!(dist.get(&1), Some(&2));
+    }
+
     #[test]
     fn test_regression() {
         let x = vec![1.0, 2.0, 3.0];
